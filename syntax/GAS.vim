@@ -182,8 +182,8 @@ syn match gasConstant '\v\w@<!\c\'%([\d32-\d91\d93-\d126]|\\%([\\bfnrt]|x\x{1,2}
 " Character Literal
 syn match gasLiteral '\v\w@<![\$]\c\'%([\d32-\d91\d93-\d126]|\\%([\\bfnrt]|x\x{1,2}|[0-9]{3}))%(\'@!)'
 
-" String: (TODO: Fix \\\" Bug)
-syn match gasString  '\v%(\".{-}%(%([^\\][\\])@<!)\"|\<.{-}%(%([^\\][\\])@<!)\>)'
+" String: (It's complicated because it might end with a backslash quote.)
+syn match gasString  '\v%(\".{-}%([^\\]%([\\][\\])*)\"|\<.{-}%([^\\]%([\\][\\])*)\>)'
 
 """"""""""""""""""""""""""""""""
 
@@ -191,11 +191,15 @@ syn match gasString  '\v%(\".{-}%(%([^\\][\\])@<!)\"|\<.{-}%(%([^\\][\\])@<!)\>)
 " Subsections, pseudo-ops, directives (. prefixed)
 syn match gasPreproc '\v%(\w@<!)%(\c\.%(allow_index_reg|app-file|asci[iz]|b?align|bundle_%(align_mode|%(un)?lock)|bss|[42]?byte|cfi_%(sections|startproc|endproc|personality|lsda|def_cfa|def_cfa_register|def_cfa_offset|adjust_cfa_offset|offset|rel_offset|register|restore|undefined|same_value|remember_state|return_column|signal_frame|window_save|escape|val_encoded_addr)|code%(16%(gcc)?|32|64)|data|def|desc|dim|double|eject|else%(if)?|end%([ei]f|func|[mr])?|exitm|equ%(iv)?|eqv|err%(or)?|extern|fail|file|fill|t?float|globa?l|hidden|hword|ident|if%(def|eqs?|[gl][et]|n?[bc]|n%(ot)?def|nes?)?|incbin|include|int%(ernal)?|irpc?|l?comm|lflags|linkonce|loc%(_mark_labels|al)?|mri|%(no)?list|long|macro|%(no)?altmacro|octa|operand_check|org|p2align[wl]?|%(pop|push)?section|previous|print|protected|p?size|purgem|quad|rept|sbttl|scl|set|secrel32|short|single|skip|sleb128|space|sse_check|stab[dns]|string%(8|16|32|64)?|struct|subsection|symver|tag|text|title|type|uleb128|val%(ue)?|version|vtable_%(entry|inherit)|warning|weak%(ref)?|word|zero|att_syntax%(\s*prefix)?)>)|%(LOCAL>)'
 
+" Arch specification:
+syn match gasArch   '\v%(\w@<!)\.%(\c%(arch) %(i8086|i[1-6]86|pentium%(pro|iii?|4)?|prescott|nocona|core%(2|i7)?|[lk]1om|k6%(_2)?|athlon|k8|amdfam10|bdver[1-3]|btver[12]|generic%(32|64)|.%(8087|[32]87|mmx|sse%([235]|4%(\.[12]|a)?)?|ssse3|avx[2]?|[vs]mx|ept|clflush|movbe|xsave%(opt)?|aes|pclmul|fma|fsgsbase|rdrnd|f16c|bmi2|lzcnt|invpcid|vmfunc|hle|rtm|adx|rdseed|prfchw|smap|mpx|sha|3dnowa?|syscall|rdtscp|svme|abm|lwp|fma4|xop|cx16|padlock|avx512%(p?f|cd|er)?)))%(\,\s*%(no)?jumps)?'
+
 " Invalid directives:
 syn match Error     '\v%(\w@<!)\.%(\cabort|line|ln|loc_mark_blocks|intel_syntax%(\s*(no)?prefix)?|att_syntax\s*noprefix)>'
 
 " .set and .eqv shorthands with = and ==
-" Get this Later 
+syn match altOp contained     '\v\s*\=\=?\s*'
+syn match altVar  '\v<%(%(\.if )@<!)%([A-Za-z\$_\.0-9]+)%(%(\s*\=\=?\s*)@=)' nextgroup=altOp
 
 " / comments
 syn match gasComment '^[ \t]*/.*$'
@@ -204,7 +208,10 @@ syn match gasComment '^[ \t]*/.*$'
 syn match gasComment '\v%(\#|\/\/).*$'
 
 " C-preprocessor (# prefixed)
-syn match gasPreproc    '\v^\s*%(\#@<!)%(\#%(\#%(\#@!)|%(un)?assert|define|elif|else|endif|error|ident|%(ifn?|un)?def|if|import|include%(_next)?|line|pragma|sccs|warning))|__%(FILE|LINE|DATE|TIME%(STAMP)?|STDC_%(VERSION|HOSTED)?|GNUC|GNUC_MINOR|GNUC_PATCHLEVEL|VERSION|STRICT_ANSI|BASE_FILE|INCLUDE_LEVEL|OPTIMIZE|OPTIMIZE_SIZE|NO_INLINE|CHAR_UNSIGNED|CHAR_BIT|INT_SHORT|SCHAR_MAX|SHRT_MAX|INT_MAX|LONG_MAX|LONG_LONG_MAX|REGISTER_PREFIX|USER_LABEL_PREFIX)__>$'
+syn match gasPreproc    '\v^\s*%(\#@<!)%(\#%(\#%(\#@!)|%(un)?assert|define|elif|else|endif|error|ident|%(ifn?|un)?def|if|import|include%(_next)?|line|pragma|sccs|warning))|__%(FILE|LINE|DATE|TIME%(STAMP)?|STDC_%(VERSION|HOSTED)?|GNUC|GNUC_MINOR|GNUC_PATCHLEVEL|VERSION|STRICT_ANSI|BASE_FILE|INCLUDE_LEVEL|OPTIMIZE|OPTIMIZE_SIZE|NO_INLINE|CHAR_UNSIGNED|CHAR_BIT|INT_SHORT|SCHAR_MAX|SHRT_MAX|INT_MAX|LONG_MAX|LONG_LONG_MAX|REGISTER_PREFIX|USER_LABEL_PREFIX)__>'
+
+" Workaround for ## comment
+syn match gasComment '\v^\s*##.*$'
 
 " Warnings. Happens when comment is attempted with # on keywords
 syn match gasWarn '\v^\s*%(\#\s+%(%(un)?assert|define|elif|else|endif|error|ident|%(ifn?|un)?def|if|import|include%(_next)?|line|pragma|sccs|warning)>).*'
@@ -225,8 +232,9 @@ hi def link gasRegister         Type
 hi def link gasConstant         Constant
 hi def link gasLiteral          Special
 hi def link gasString           String
+hi def link gasArch             Underlined
 hi def link gasComment          Comment
 hi def link gasPreproc          PreProc
 hi def link gasLabel            Title
-hi def link alternatives        StorageClass
+hi def link altVar              StorageClass
 hi def link altOp               Operator
