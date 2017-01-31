@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: GAS x86 Assembly
 " Maintainer: calculuswhiz
-" Latest Revision: 28 JAN 2017
+" Latest Revision: 30 JAN 2017
 
 if exists("b:current_syntax")
   finish
