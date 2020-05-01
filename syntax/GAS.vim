@@ -213,8 +213,8 @@ syn match gasPreproc    '\v^\s*%(\#@<!)%(\#%(\#%(\#@!)|%(un)?assert|define|elif|
 " Workaround for ## comment
 syn match gasComment '\v^\s*##.*$'
 
-" Warnings. Happens when comment is attempted with # on keywords
-syn match gasWarn '\v^\s*%(\#\s+%(%(un)?assert|define|elif|else|endif|error|ident|%(ifn?|un)?def|if|import|include%(_next)?|line|pragma|sccs|warning)>).*'
+" Comment exceptions. Happens when comment is attempted with # on keywords
+syn match commentException '\v^\s*%(\#\s+%(%(un)?assert|define|elif|else|endif|error|ident|%(ifn?|un)?def|if|import|include%(_next)?|line|pragma|sccs|warning)>)'
 
 " Block comments
 syn region gasComment start="\v\s*\/\*" end="\v\*\/" fold
@@ -227,7 +227,7 @@ let b:current_syntax = "GAS"
 hi def link gasInstr            Function
 hi def link gasPrefix           Keyword
 hi def link gasOther            Keyword
-hi def link gasWarn             WarningMsg
+hi def link commentException    PreProc
 hi def link gasRegister         Type
 hi def link gasConstant         Constant
 hi def link gasLiteral          Special
