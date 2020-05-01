@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: GAS x86 Assembly
 " Maintainer: calculuswhiz
-" Latest Revision: 30 JAN 2017
+" Latest Revision: 01 May 2020
 
 if exists("b:current_syntax")
   finish
@@ -184,6 +184,7 @@ syn match gasLiteral '\v\w@<![\$]\c\'%([\d32-\d91\d93-\d126]|\\%([\\bfnrt]|x\x{1
 
 " String: (It's complicated because it might end with a backslash quote.)
 syn match gasString  '\v%(\".{-}%([^\\]%([\\][\\])*)\"|\<.{-}%([^\\]%([\\][\\])*)\>)'
+syn match gasString '""'
 
 """"""""""""""""""""""""""""""""
 
@@ -208,7 +209,10 @@ syn match gasComment '^[ \t]*/.*$'
 syn match gasComment '\v%(\#|\/\/).*$'
 
 " C-preprocessor (# prefixed)
-syn match gasPreproc    '\v^\s*%(\#@<!)%(\#%(\#%(\#@!)|%(un)?assert|define|elif|else|endif|error|ident|%(ifn?|un)?def|if|import|include%(_next)?|line|pragma|sccs|warning))|__%(FILE|LINE|DATE|TIME%(STAMP)?|STDC_%(VERSION|HOSTED)?|GNUC|GNUC_MINOR|GNUC_PATCHLEVEL|VERSION|STRICT_ANSI|BASE_FILE|INCLUDE_LEVEL|OPTIMIZE|OPTIMIZE_SIZE|NO_INLINE|CHAR_UNSIGNED|CHAR_BIT|INT_SHORT|SCHAR_MAX|SHRT_MAX|INT_MAX|LONG_MAX|LONG_LONG_MAX|REGISTER_PREFIX|USER_LABEL_PREFIX)__>'
+syn match gasPreproc    '\v^\s*%(\#@<!)%(\#%(\#%(\#@!)|%(un)?assert|define|elif|else|endif|error|ident|%(ifn?|un)?def|if|import|include%(_next)?|line|pragma|sccs|warning))>'
+
+" C-preprocessor (non # prefixed)
+syn match gasPreproc   '\v<__%(FILE|LINE|DATE|TIME%(STAMP)?|STDC_%(VERSION|HOSTED)?|GNUC|GNUC_MINOR|GNUC_PATCHLEVEL|VERSION|STRICT_ANSI|BASE_FILE|INCLUDE_LEVEL|OPTIMIZE|OPTIMIZE_SIZE|NO_INLINE|CHAR_UNSIGNED|CHAR_BIT|INT_SHORT|SCHAR_MAX|SHRT_MAX|INT_MAX|LONG_MAX|LONG_LONG_MAX|REGISTER_PREFIX|USER_LABEL_PREFIX)__>'
 
 " Workaround for ## comment
 syn match gasComment '\v^\s*##.*$'
